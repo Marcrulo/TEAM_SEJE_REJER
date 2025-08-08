@@ -1,0 +1,7 @@
+sentence_transformers
+faiss-cpu
+accelerate
+fastapi
+uvicorn[standard]
+loguru
+bitsandbytes

@@ -1,0 +1,8 @@
+flask
+python-dotenv
+pydantic
+opencv-python
+
+sudo apt update
+sudo apt install -y libgl1
+
