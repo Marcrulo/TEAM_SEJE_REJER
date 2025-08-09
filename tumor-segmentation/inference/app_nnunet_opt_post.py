@@ -18,21 +18,13 @@ load_dotenv()
 SECRET_API_KEY = os.getenv("API_KEY")
 MODEL_FOLDER = os.getenv(
     "MODEL_FOLDER",
-    "/work3/s204165/tumor-segmentation/nnUNet_results/Dataset400_TumorSegWithAugm/nnUNetTrainer_450epochs__nnUNetPlans__2d"
+    "/nnUNet_results/Dataset400_TumorSegWithAugm/nnUNetTrainer_450epochs__nnUNetPlans__2d"
 )
 FOLDS = [0,1,2,3,4]#'all'  # use all folds
 CHECKPOINT = os.getenv("CHECKPOINT_NAME", "checkpoint_best.pth")
 DEVICE = torch.device(
     os.getenv("TORCH_DEVICE", "cuda" if torch.cuda.is_available() else "cpu")
 )
-
-#REQUEST_DUMP_DIR = os.getenv("REQUEST_DUMP_DIR", "/work3/s204165/tumor-segmentation/requests")
-#SEGMENT_DUMP_DIR = os.getenv("SEGMENT_DUMP_DIR", "/work3/s204165/tumor-segmentation/segments")
-#NP_DUMP_DIR = os.getenv("NP_DUMP_DIR", "/work3/s204165/tumor-segmentation/npy")
-
-#os.makedirs(REQUEST_DUMP_DIR, exist_ok=True)
-#os.makedirs(SEGMENT_DUMP_DIR, exist_ok=True)
-#os.makedirs(NP_DUMP_DIR, exist_ok=True)
 
 # ————————————————————————————————
 # Load postprocessing funcs once
@@ -75,12 +67,6 @@ def predict_endpoint():
     # decode_request returns HxWxC (PNG) -> take single channel
     img = decode_request(req_dto) # shape (H, W, 3)
     img_2d = img[..., 0].astype(np.float32)  #(H,W)
-    
-    # === DUMP RAW INPUT IMAGE ===
-    #ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-    #req_fname = os.path.join(REQUEST_DUMP_DIR, f"{ts}_input.png")
-    # imageio will respect the uint8 channels
-    #imageio.imwrite(req_fname, img)
 
     # Prepare 4D input: (cases=1, channels=1, H, W)
     raw_data = img_2d[None, None, ...]
@@ -93,10 +79,6 @@ def predict_endpoint():
         raw_data, None, props,
         plans_manager, cfg, predictor.dataset_json
     )
-    
-     # === OPTIONALLY SAVE PREPROCESSED ARRAY ===
-    #pp_fname = os.path.join(NP_DUMP_DIR, f"{ts}_preprocessed.npy")
-    #np.save(pp_fname, data_pp)   # deserialize later with np.load
 
     # Predict logits (no weight reload)
     input_tensor = torch.from_numpy(data_pp).to(DEVICE)
@@ -112,10 +94,6 @@ def predict_endpoint():
 
     # HxWx3 mask
     seg_pp = np.stack([seg_pp, seg_pp, seg_pp], axis=-1)
-    
-    # === DUMP SEGMENTATION MASK ===
-    #seg_fname = os.path.join(SEGMENT_DUMP_DIR, f"{ts}_mask.png")
-    #imageio.imwrite(seg_fname, seg_pp)
 
     validate_segmentation(img, seg_pp)
 
