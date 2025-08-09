@@ -1,6 +1,6 @@
 # nnUNet Setup, Training and Inference
 
-This folder is cloned from the original nnUNet repository:  
+Folder `/tumor-segmentation/training-nnUNet` is cloned from the original nnUNet repository:  
 [https://github.com/MIC-DKFZ/nnUNet.git](https://github.com/MIC-DKFZ/nnUNet.git)
 
 Installation instructions for nnUNet can be found here:  
